@@ -9,7 +9,7 @@ SECRET_KEY = 'a5*i41i@z3l5uz_m+cw)5!^io=v^t&wgq00fso7e!uym%#h3jt'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['cmd.venomutp.com','127.0.0.1']
+ALLOWED_HOSTS = ['cmd.venomutp.com','127.0.0.1', '52.89.50.169']
 
 
 # Application definition
