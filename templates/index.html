@@ -1,12 +1,137 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
   <head>
     {% load staticfiles %}
     <meta charset="utf-8">
-    <title>Command Line Verifier Windows</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="A front-end template that helps you build fast, modern mobile web apps.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <title>Command Line Verifier</title>
+
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" sizes="192x192" href="{% static 'images/android-desktop.png' %}">
+
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Material Design Lite">
+    <link rel="apple-touch-icon-precomposed" href="{% static 'images/ios-desktop.png' %}">
+
+    <!-- Tile icon for Win8 (144x144 + tile color) -->
+    <meta name="msapplication-TileImage" content="{% static 'images/touch/ms-touch-icon-144x144-precomposed.png' %}">
+    <meta name="msapplication-TileColor" content="#3372DF">
+
+    <link rel="shortcut icon" href="{% static 'images/favicon.png' %}">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.teal-red.min.css">
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+    #view-source {
+      position: fixed;
+      display: block;
+      right: 0;
+      bottom: 0;
+      margin-right: 40px;
+      margin-bottom: 40px;
+      z-index: 900;
+    }
+    </style>
   </head>
   <body>
+    <div class="demo-layout mdl-layout mdl-layout--fixed-header mdl-js-layout mdl-color--grey-100">
+      <header class="demo-header mdl-layout__header mdl-layout__header--scroll mdl-color--grey-100 mdl-color-text--grey-800">
+        <div class="mdl-layout__header-row">
+          <h5 class="span_cmd">user@root $ </h5><input class="mdl-textfield__input input_cmd" type="text" id="cmd" placeholder="Insert your command">
+        </div>
+      </header>
+      <div class="demo-ribbon"></div>
+      <main class="demo-main mdl-layout__content">
+        <div class="demo-container mdl-grid">
+          <div class="mdl-cell mdl-cell--2-col mdl-cell--hide-tablet mdl-cell--hide-phone"></div>
+          <div class="demo-content mdl-color--white mdl-shadow--4dp content mdl-color-text--grey-800 mdl-cell mdl-cell--8-col" id="div_principal">
+            <h3>Please insert the command</h3>
+              <div>
+                <p>
+                  Here you found your command's information
+                </p>
+              </div>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script type="text/javascript">
+      $("#cmd").keypress(function(e) {
+        if(e.which == 13) {
+          cmd = $("#cmd").val();
+          if (cmd.length != 0) {
+            data = {
+              'cmd': cmd,
+            };
+            $.ajax({
+              data: data,
+              url: "/api/cmd"
+            }).done(function(message) {
+              num_commands = message.results;
+              console.log(message)
+              $("#div_principal").empty();
+              for (var i = 1; i <= num_commands; i++) {
+                cmd_info = message[i.toString()];
+                str= '<h3>Command '+ i +': '+cmd_info["cmd"]+'</h3>';
+                num_opciones = cmd_info["num_options"];
+                if (num_opciones == 0) {
+                  str += '<p><b>Options:</b> No found options</p>';
+                } else {
+                  opciones = cmd_info["options"];
+                  str += '<p><b>Options:</b></p>';
+                  for (var j = 1; j <= num_opciones; j++) {
+                    str += '<p><b>-</b> '+opciones[j]+'</p>';
+                  }
+                }
 
+                num_parametros = cmd_info["num_parameters"]
+                if (num_parametros == 0) {
+                  str += '<p><b>Parameters:</b> No found parameters</p>';
+                } else {
+                  parametros = cmd_info["parameters"];
+                  str += '<p><b>Parameters:</b></p>';
+                  for (var j = 1; j <= num_parametros; j++) {
+                    str += '<p><b>-</b> '+parametros[j]+'</p>';
+                  }
+                }
+
+                in_redirect = cmd_info["in_redirect"];
+                if (in_redirect) {
+                  in_redirect_to = cmd_info["in_redirect_to"];
+                  str += '<p><b>IN redirect:</b> '+in_redirect_to+'</p>';
+                } else {
+                  str += '<p><b>IN redirect:</b> Not have</p>';
+                }
+
+                out_redirect = cmd_info["out_redirect"];
+                if (out_redirect) {
+                  out_redirect_to = cmd_info["out_redirect_to"];
+                  str += '<p><b>OUT redirect:</b> '+out_redirect_to+'</p>';
+                } else {
+                  str += '<p><b>OUT redirect:</b> Not have</p>';
+                }
+                str += '<p><b>Operation Mode:</b> '+cmd_info.modo+'</p>';
+
+                $("#div_principal").append(str);
+              }
+            }).fail(function(message) {
+              alert( "error" );
+            });
+          } else {
+             Materialize.toast('Please insert a command', 4000);
+          }
+        }
+      });
+    </script>
   </body>
 </html>

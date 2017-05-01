@@ -28,7 +28,7 @@ def commandRequest(request):
 				data_cmd = {}
 				## Modo de operacion
 				if '&' in command:
-					data_cmd['modo'] = 'Subordinado'
+					data_cmd['modo'] = 'Subordinated'
 					command = command[0:len(command)-2]
 				else:
 					data_cmd['modo'] = 'Normal'
